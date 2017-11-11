@@ -35,16 +35,27 @@ app.use(function(req, res, next) {
     next();
 });
 
+// To use the BASIC auth strategy, register here in server.js
 app.use(passport.initialize());
+// To use the basic auth strategy in a route, we initialize Passport, 
+// and register the strategy in server.js:
 passport.use(basicStrategy);
+// To register our JWT strategy with Passport, use the passport.use method:
 passport.use(jwtStrategy);
 
 app.use('/api/users/', usersRouter);
 app.use('/api/auth/', authRouter);
+// Then, we can use this to protect the /api/auth/login endpoint defined 
+// in /auth/router.js
 
 // A protected endpoint which needs a valid JWT to access it
+// This uses the JWT strategy to protect endpoints:
 app.get(
     '/api/protected',
+    // use passport.authenticate middleware to protect the endpoint,
+    // this time passing JWT as the argument so it uses the JWT strategy
+    // instead of the basic AUTH strategy.  If an authenticated user
+    // access the endpoint, we respond with our protected message.
     passport.authenticate('jwt', {session: false}),
     (req, res) => {
         return res.json({
